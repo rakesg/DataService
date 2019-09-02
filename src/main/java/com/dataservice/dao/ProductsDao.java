@@ -1,11 +1,14 @@
 package com.dataservice.dao;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.dataservice.model.Products;
@@ -17,9 +20,19 @@ public class ProductsDao {
 	public List<Products> getProductListing() throws FileNotFoundException, IOException{
 		ReadJson read = new ReadJson();
 		String fileName = "static/Products.json";
-		ClassLoader classLoader = new ProductsDao().getClass().getClassLoader();
+		/*ClassLoader classLoader = new ProductsDao().getClass().getClassLoader();
 		File file = new File(classLoader.getResource(fileName).getFile());
-		return read.readjsonFile(file);
+		return read.readjsonFile(file);*/
+		StringBuilder resultStringBuilder = new StringBuilder();
+		Resource resource = new ClassPathResource(fileName);
+		try (BufferedReader br
+					 = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				resultStringBuilder.append(line);
+			}
+		}
+		return read.readjsonFile(resultStringBuilder.toString());
 	}
 	
 	public List<Products> getProducts(List<Products> products, Products productFilter){
